@@ -5,7 +5,6 @@ from agent import SemaforoAgente
 ambiente = Ambiente()
 semaforo = SemaforoAgente()
 
-
 for i in range(20):
     print(f"\n--- Ciclo {i+1} ---")
     ambiente.atualizar(ciclo_atual=i+1)
@@ -17,6 +16,8 @@ for i in range(20):
     print(f"AGENTE DECIDIU: {acao}")
     
     semaforo.atualizar_estado_agente(acao)
-    ambiente.executar_acao(acao)
+    
+
+    ambiente.executar_acao(acao, ciclo_atual=i+1)
     
     time.sleep(2)

@@ -36,25 +36,24 @@ class SemaforoAgente:
 
         params_atuais = self.parametros[self.modo_operacao]
         
-        # LÓGICA DE DECISÃO CORRIGIDA
         if self.estado == "VERDE_CARROS":
-            # Condição para abrir para pedestre: se houver um e ele já esperou o suficiente
-            if percepcao['pedestres'] and self.tempo_no_estado_atual >= params_atuais['pedestre_espera_max']:
+            condicao_tempo_esgotado = self.tempo_no_estado_atual >= params_atuais['pedestre_espera_max']
+            condicao_pista_livre = percepcao['carros'] == 0
+            
+            if percepcao['pedestres'] and (condicao_tempo_esgotado or condicao_pista_livre):
                 self.tempo_no_estado_atual = 0
                 return "ABRIR_PARA_PEDESTRES"
             else:
                 return "MANTER_VERDE_CARROS"
         
         elif self.estado == "VERDE_PEDESTRES":
-            # Condição para voltar para os carros:
-            # Se já deu um tempo mínimo para o pedestre passar E (não tem mais ninguém OU o tráfego está alto)
-            if self.tempo_no_estado_atual >= params_atuais['min_tempo_pedestre']:
-                if not percepcao['pedestres'] or percepcao['carros'] > 5:
-                    self.tempo_no_estado_atual = 0
-                    return "ABRIR_PARA_CARROS"
-
-            # Se nenhuma condição de troca for atingida, continua aberto para os pedestres
-            return "MANTER_VERDE_PEDESTRES"
+            condicao_tempo_minimo = self.tempo_no_estado_atual >= params_atuais['min_tempo_pedestre']
+            
+            if condicao_tempo_minimo and (not percepcao['pedestres'] or percepcao['carros'] > 5):
+                self.tempo_no_estado_atual = 0
+                return "ABRIR_PARA_CARROS"
+            else:
+                return "MANTER_VERDE_PEDESTRES"
 
     def atualizar_estado_agente(self, acao):
         if acao == "ABRIR_PARA_PEDESTRES":
